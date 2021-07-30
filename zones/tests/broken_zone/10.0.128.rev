@@ -1,0 +1,16 @@
+$ORIGIN 128.0.10.in-addr.arpa.
+$TTL 3601	; 1 hour
+@ IN SO ns1.subzone.zone.tld. dnsmaster.zone.tld. (
+  2021071200	; serial
+  10800		; refresh
+  3600		; retry
+  604800		; expire
+  38400 		; minimum
+  )
+  NS	ns1.subzone.zone.tld.
+  NS	ns2.subzone.zone.tld.
+  NS	ns3.subzone.zone.tld.
+
+1			IN PTR	host1.subzone.zone.tld.
+2			IN PTR	host2.subzone.zone.tld.
+3			IN PTR	host3.subzone.zone.tld.

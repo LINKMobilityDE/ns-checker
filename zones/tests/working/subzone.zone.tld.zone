@@ -1,0 +1,36 @@
+$TTL 3601
+$ORIGIN subzone.zone.tld.
+@ IN SOA ns1.subzone.zone.tld. dnsmaster.zone.tld. (
+  2021071200	; serial
+  10800		; refresh
+  3600		; retry
+  604800		; expire
+  38400 		; minimum
+  )
+  NS	ns1.subzone.zone.tld.
+  NS	ns2.subzone.zone.tld.
+  NS	ns3.subzone.zone.tld.
+
+host1      IN 60  A     10.0.128.1
+host1      IN 60  AAAA  2f01::12
+host2      IN 120 A     10.0.128.2
+host3      IN     A     10.0.128.3
+manager-1  IN     A     10.0.128.31
+manager-2  IN     A     10.0.128.32
+manager-3  IN     A     10.0.128.33
+manager-4  IN     A     10.0.128.34
+manager-5  IN     A     10.0.128.35
+
+manager           A     10.0.128.1
+manager           A     10.0.128.2
+manager           A     10.0.128.3
+manager           A     10.0.128.31
+manager           A     10.0.128.32
+manager           A     10.0.128.33
+manager           A     10.0.128.34
+manager           A     10.0.128.35
+
+node              CNAME manager
+monitor           CNAME manager
+database   IN     CNAME manager
+ddddd      IN     CNAME manager
