@@ -1,0 +1,15 @@
+$ORIGIN 0.0.0.0.1.0.f.2.ip6.arpa.
+$TTL 3601	; 1 hour
+@ IN SOA ns1.subzone.zone.tld. dnsmaster.zone.tld. (
+  2021071200	; serial
+  10800		; refresh
+  3600		; retry
+  604800		; expire
+  38400 		; minimum
+  )
+  NS	ns1.subzone.zone.tld.
+  NS	ns2.subzone.zone.tld.
+  NS	ns3.subzone.zone.tld.
+
+1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0 IN PTR host1.subzone.zone.tld.
+3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0 IN PTR host3.subzone.zone.tld.
