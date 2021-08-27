@@ -62,10 +62,25 @@ func TestRecordsList(t *testing.T) {
 	result := rr.List()
 	assert.Equal(rr.list, result)
 	// Test result is actually copy
-	rr.list = rr.list[:len(rr.list)-1]
+	rr.list[0], rr.list[1] = rr.list[1], rr.list[0]
 	assert.NotEqual(rr.list, result)
 	result = rr.List()
 	assert.Equal(rr.list, result)
+}
+
+func TestMerge(t *testing.T) {
+	assert, rr := prepareTest(t)
+	other := new(Records)
+	err := other.parse("tests/working/10.0.128.rev")
+	assert.NoError(err)
+	rr.Merge(other)
+	assert.Len(rr.list, 32)
+	assert.Len(rr.types[1], 16)
+	assert.Len(rr.types[2], 6)
+	assert.Len(rr.types[5], 4)
+	assert.Len(rr.types[6], 2)
+	assert.Len(rr.types[28], 1)
+	assert.Len(rr.types[12], 3)
 }
 
 func TestRecordsGetByType(t *testing.T) {

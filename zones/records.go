@@ -67,6 +67,22 @@ func (rr *Records) List() []dns.RR {
 	return crr
 }
 
+// Merge merges given records into existing
+func (rr *Records) Merge(other *Records) {
+	rr.list = append(rr.list, other.list...)
+	if rr.types == nil {
+		rr.types = make(map[uint16][]dns.RR)
+	}
+	for t, r := range other.types {
+		if _, ok := rr.types[t]; ok {
+			rr.types[t] = append(rr.types[t], r...)
+		} else {
+			rr.types[t] = make([]dns.RR, len(r))
+			copy(rr.types[t], r)
+		}
+	}
+}
+
 // GetByType returns the records for particular dns.Type. All records are still pointers, so
 // you shouldn't change them.
 func (rr *Records) GetByType(t uint16) []dns.RR {
