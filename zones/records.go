@@ -1,6 +1,7 @@
 package zones
 
 import (
+	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -16,8 +17,9 @@ type Records struct {
 
 // ParseDirectory opens all files in dir. This functions assumes that all files in the directory are zone-files.
 // includeAllowed is not implemented.
-func ParseDirectory(dir string) (*Records, error) {
+func ParseDirectory(dir string, ignoreParseErrors bool) (*Records, error) {
 	rr := new(Records)
+	var pErr *dns.ParseError
 	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, prevErr error) error {
 		if prevErr != nil {
 			return prevErr
@@ -26,7 +28,13 @@ func ParseDirectory(dir string) (*Records, error) {
 			return nil
 		}
 		err := rr.parse(p)
-		return err
+		if err != nil {
+			if ignoreParseErrors && errors.As(err, &pErr) {
+				return nil
+			}
+			return err
+		}
+		return nil
 	})
 
 	if err != nil {
@@ -41,21 +49,22 @@ func (rr *Records) parse(filename string) error {
 	if err != nil {
 		return err
 	}
+	defer r.Close()
 	parser := dns.NewZoneParser(r, "", filename)
-	if rr.types == nil {
-		rr.types = make(map[uint16][]dns.RR)
-	}
+	rrNew := new(Records)
+	rrNew.types = make(map[uint16][]dns.RR)
 	for r, ok := parser.Next(); ok; r, ok = parser.Next() {
-		rr.list = append(rr.list, r)
-		if rt, ok := rr.types[r.Header().Rrtype]; ok {
-			rr.types[r.Header().Rrtype] = append(rt, r)
+		rrNew.list = append(rrNew.list, r)
+		if rt, ok := rrNew.types[r.Header().Rrtype]; ok {
+			rrNew.types[r.Header().Rrtype] = append(rt, r)
 		} else {
-			rr.types[r.Header().Rrtype] = []dns.RR{r}
+			rrNew.types[r.Header().Rrtype] = []dns.RR{r}
 		}
 	}
 	if err := parser.Err(); err != nil {
 		return err
 	}
+	rr.Merge(rrNew)
 	return nil
 }
 

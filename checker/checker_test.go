@@ -10,7 +10,7 @@ import (
 
 func prepareRecords(t *testing.T) (*assert.Assertions, *Checker) {
 	assert := assert.New(t)
-	rr, err := zones.ParseDirectory("tests")
+	rr, err := zones.ParseDirectory("tests", false)
 	assert.NoError(err)
 	return assert, &Checker{Records: rr}
 }

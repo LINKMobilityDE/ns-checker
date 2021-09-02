@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	dirs   []string
-	chkr   *checker.Checker
-	chkrMU sync.RWMutex
+	dirs              []string
+	ignoreParseErrors bool
+	chkr              *checker.Checker
+	chkrMU            sync.RWMutex
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -46,6 +47,7 @@ func Execute() {
 func init() {
 	pf := rootCmd.PersistentFlags()
 	pf.StringArrayVarP(&dirs, "dir", "d", nil, "directories with zone files to parse")
+	pf.BoolVar(&ignoreParseErrors, "ignore-parse-errors", false, "directories with zone files to parse")
 	cobra.MarkFlagRequired(pf, "dir")
 }
 
@@ -75,7 +77,7 @@ func runRoot(cmd *cobra.Command, args []string) error {
 func updateChecker() error {
 	rr := new(zones.Records)
 	for _, dir := range dirs {
-		other, err := zones.ParseDirectory(dir)
+		other, err := zones.ParseDirectory(dir, ignoreParseErrors)
 		if err != nil {
 			return err
 		}

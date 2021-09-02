@@ -38,23 +38,40 @@ func TestRecordsParse(t *testing.T) {
 
 func TestParseDirectory(t *testing.T) {
 	assert := assert.New(t)
-	rr, err := ParseDirectory("tests/working")
+	rr, err := ParseDirectory("tests/working", false)
 	assert.NoError(err)
 	assert.Len(rr.list, 32)
 	assert.Len(rr.types, 6)
 
-	rr, err = ParseDirectory("tests/broken_open")
-	assert.Error(err)
 	var pathErr *fs.PathError
+	rr, err = ParseDirectory("tests/broken_open", false)
+	assert.Nil(rr)
+	assert.Error(err)
+	assert.ErrorAs(err, &pathErr)
+	rr, err = ParseDirectory("tests/broken_open", true)
+	assert.Nil(rr)
+	assert.Error(err)
 	assert.ErrorAs(err, &pathErr)
 
-	rr, err = ParseDirectory("tests/broken_zone")
+	rr, err = ParseDirectory("tests/non_existent", false)
+	assert.Nil(rr)
 	assert.Error(err)
-	var parseErr *dns.ParseError
-	assert.ErrorAs(err, &parseErr)
+	assert.ErrorAs(err, &pathErr)
+	rr, err = ParseDirectory("tests/non_existent", true)
+	assert.Nil(rr)
+	assert.Error(err)
+	assert.ErrorAs(err, &pathErr)
 
-	rr, err = ParseDirectory("tests/non_existent")
+	var parseErr *dns.ParseError
+	rr, err = ParseDirectory("tests/broken_zone", false)
+	assert.Nil(rr)
 	assert.Error(err)
+	assert.ErrorAs(err, &parseErr)
+	rr, err = ParseDirectory("tests/broken_zone", true)
+	assert.NoError(err)
+	// On parsing errors the whole content of file is ignored
+	assert.Len(rr.list, 0)
+	assert.Len(rr.types, 0)
 }
 
 func TestRecordsList(t *testing.T) {
