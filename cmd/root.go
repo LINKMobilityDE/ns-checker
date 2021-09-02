@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"sync"
-	"time"
 
 	"github.com/LINKMobilityDE/ns-checker/checker"
 	"github.com/LINKMobilityDE/ns-checker/zones"
@@ -12,7 +11,6 @@ import (
 
 var (
 	dirs   []string
-	update time.Duration
 	chkr   *checker.Checker
 	chkrMU sync.RWMutex
 )
@@ -47,7 +45,6 @@ func Execute() {
 
 func init() {
 	pf := rootCmd.PersistentFlags()
-	pf.DurationVarP(&update, "update", "u", time.Minute*10, "interval to update dns cache")
 	pf.StringArrayVarP(&dirs, "dir", "d", nil, "directories with zone files to parse")
 	cobra.MarkFlagRequired(pf, "dir")
 }
