@@ -103,3 +103,30 @@ func TestCheckPTR(t *testing.T) {
 	assert.NoError(err)
 	assert.Len(failed, 2)
 }
+
+func TestSorting(t *testing.T) {
+	assert := assert.New(t)
+
+	a := func(name string) *dns.A { return &dns.A{Hdr: dns.RR_Header{Name: name}} }
+	ptr := func(name string) *dns.PTR { return &dns.PTR{Hdr: dns.RR_Header{Name: name}} }
+
+	rrs := []dns.RR{
+		a("node1.example.org."),
+		a("node002.example.org."),
+		a("node00000000000000000000000000000000003.example.org."),
+		ptr("1.0.0.127.in-addr.arpa."),
+		ptr("1.2.0.127.in-addr.arpa."),
+		ptr("7.2.0.127.in-addr.arpa."),
+	}
+	expected := "" +
+		"1.0.0.127.in-addr.arpa.\n" +
+		"1.2.0.127.in-addr.arpa.\n" +
+		"7.2.0.127.in-addr.arpa.\n" +
+		"node1.example.org.\n" +
+		"node002.example.org.\n" +
+		"node00000000000000000000000000000000003.example.org."
+
+	formatted := FormatFailed(rrs, "\n")
+
+	assert.Equal(expected, formatted)
+}

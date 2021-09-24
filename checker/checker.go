@@ -2,9 +2,11 @@ package checker
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/LINKMobilityDE/ns-checker/zones"
+	"github.com/facette/natsort"
 	"github.com/miekg/dns"
 )
 
@@ -184,10 +186,33 @@ func (c *Checker) CheckPTR() (failed []dns.RR, err error) {
 	return failed, err
 }
 
+// sortKey returns the DNS name in reverse.
+func sortKey(rr dns.RR) string {
+	parts := strings.Split(rr.Header().Name, ".")
+	// reverse
+	for i, j := 0, len(parts)-1; i < j; i, j = i+1, j-1 {
+		parts[i], parts[j] = parts[j], parts[i]
+	}
+	return strings.Join(parts, " . ")
+}
+
+func sorted(rrs []dns.RR) []dns.RR {
+	sorted := make([]dns.RR, len(rrs))
+	copy(sorted, rrs)
+	sort.Slice(sorted, func(i, j int) bool {
+		ki := sortKey(sorted[i])
+		kj := sortKey(sorted[j])
+		return natsort.Compare(ki, kj)
+	})
+	return sorted
+}
+
 func FormatFailed(failed []dns.RR, sep string) string {
 	if len(failed) == 0 {
 		return ""
 	}
+	failed = sorted(failed)
+
 	seen := map[string]struct{}{}
 	sb := new(strings.Builder)
 	sb.WriteString(failed[0].Header().Name)
